@@ -1,0 +1,7 @@
+{
+  "foods": [
+    { "id": 1, "name": "Cheesy Burger", "price": 120, "image": "/images/burger.jpg" },
+    { "id": 2, "name": "Chicken Wings", "price": 180, "image": "/images/wings.jpg" }
+  ],
+  "orders": []
+}
