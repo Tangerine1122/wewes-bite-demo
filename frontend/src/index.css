@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+:root {
+  /* Brand palette */
+  --bite-bg: 255 247 237;      /* warm cream */
+  --bite-surface: 255 255 255; /* white cards */
+  --bite-text: 17 24 39;       /* slate-900 */
+  --bite-muted: 107 114 128;   /* gray-500 */
+
+  --bite-yellow: 245 158 11;   /* amber-500 */
+  --bite-orange: 249 115 22;   /* orange-500 */
+  --bite-red: 239 68 68;       /* red-500 */
+}
+
+/* Global background + text */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: rgb(var(--bite-bg));
+  color: rgb(var(--bite-text));
+}

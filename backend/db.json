@@ -1,7 +1,346 @@
 {
   "foods": [
-    { "id": 1, "name": "Cheesy Burger", "price": 120, "image": "/images/burger.jpg" },
-    { "id": 2, "name": "Chicken Wings", "price": 180, "image": "/images/wings.jpg" }
+    {
+      "id": "1",
+      "name": "Cheesy Burger",
+      "price": 120,
+      "image": "/images/burger.jpg"
+    },
+    {
+      "id": "2",
+      "name": "Chicken Wings",
+      "price": 180,
+      "image": "/images/wings.jpg"
+    }
   ],
-  "orders": []
+  "orders": [
+    {
+      "id": "364d",
+      "items": [
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg"
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg"
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg"
+        },
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg"
+        },
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg"
+        }
+      ],
+      "total": 720,
+      "createdAt": "2026-02-04T02:49:55.031Z",
+      "status": "placed"
+    },
+    {
+      "id": "8fcb",
+      "items": [
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg"
+        },
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg"
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg"
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg"
+        }
+      ],
+      "total": 600,
+      "createdAt": "2026-02-04T02:51:01.734Z",
+      "status": "placed"
+    },
+    {
+      "id": "e000",
+      "customer": {
+        "name": "Jimuell Jimenez",
+        "address": "Cebu City",
+        "note": "more ketchup"
+      },
+      "items": [
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "qty": 2
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "qty": 2
+        }
+      ],
+      "total": 600,
+      "createdAt": "2026-02-04T03:01:33.621Z",
+      "status": "placed"
+    },
+    {
+      "id": "6dcd",
+      "customer": {
+        "name": "Jimuell Jimenez",
+        "address": "Cebu city",
+        "note": "ketchup"
+      },
+      "items": [
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "qty": 5
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "qty": 3
+        }
+      ],
+      "total": 1260,
+      "createdAt": "2026-02-04T03:02:42.080Z",
+      "status": "placed"
+    },
+    {
+      "id": "80cb",
+      "customer": {
+        "name": "Jimuell Jimenez",
+        "address": "Cebu City",
+        "note": "ketchup"
+      },
+      "items": [
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "qty": 2
+        },
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "qty": 2
+        }
+      ],
+      "total": 600,
+      "createdAt": "2026-02-04T03:51:30.249Z",
+      "status": "placed"
+    },
+    {
+      "id": "68dd",
+      "customer": {
+        "name": "Angela",
+        "address": "Cebu City",
+        "note": "Extra ketchup"
+      },
+      "items": [
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "qty": 1
+        },
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "qty": 1
+        }
+      ],
+      "total": 300,
+      "createdAt": "2026-02-04T04:29:07.278Z",
+      "status": "placed"
+    },
+    {
+      "id": "6567",
+      "customer": {
+        "name": "jim",
+        "address": "Cebu City",
+        "note": "No onions"
+      },
+      "items": [
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "qty": 5
+        },
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "qty": 5
+        }
+      ],
+      "total": 1500,
+      "createdAt": "2026-02-04T05:15:18.020Z",
+      "status": "placed"
+    },
+    {
+      "id": "f6809800-88ca-4268-b176-bc756700944a",
+      "customer": {
+        "name": "Jimuell Jimenez",
+        "address": "Cebu City",
+        "notes": "UP Cebu entrance gate"
+      },
+      "items": [
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg",
+          "qty": 1
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg",
+          "qty": 1
+        }
+      ],
+      "total": 300,
+      "createdAt": "2026-02-04T05:26:21.903Z",
+      "status": "placed"
+    },
+    {
+      "id": "3f920770-290d-4213-8463-90fe18918f76",
+      "customer": {
+        "name": "Jimuell Jimenez",
+        "address": "Cebu City",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg",
+          "qty": 3
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg",
+          "qty": 3
+        }
+      ],
+      "total": 900,
+      "createdAt": "2026-02-04T05:28:26.812Z",
+      "status": "placed"
+    },
+    {
+      "id": "7d851afe-ca2c-4df6-a6fc-a5ec0fbf4310",
+      "customer": {
+        "name": "Jimuell Jimenez",
+        "address": "Cebu City",
+        "notes": "Gate"
+      },
+      "items": [
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg",
+          "qty": 1
+        },
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg",
+          "qty": 1
+        }
+      ],
+      "total": 300,
+      "createdAt": "2026-02-04T05:32:56.338Z",
+      "status": "placed"
+    },
+    {
+      "id": "6e32a0a6-1a94-44b4-96ea-ec15fad2d366",
+      "customer": {
+        "name": "Jim",
+        "address": "Cebu City",
+        "notes": "Gate"
+      },
+      "items": [
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "image": "/images/wings.jpg",
+          "qty": 2
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "image": "/images/burger.jpg",
+          "qty": 2
+        }
+      ],
+      "total": 600,
+      "createdAt": "2026-02-04T05:36:52.904Z",
+      "status": "placed"
+    },
+    {
+      "id": "308c",
+      "customer": {
+        "name": "Angela D",
+        "address": "Cebu City",
+        "note": "extra sauce"
+      },
+      "items": [
+        {
+          "id": "2",
+          "name": "Chicken Wings",
+          "price": 180,
+          "qty": 2
+        },
+        {
+          "id": "1",
+          "name": "Cheesy Burger",
+          "price": 120,
+          "qty": 2
+        }
+      ],
+      "total": 600,
+      "createdAt": "2026-02-04T06:02:32.518Z",
+      "status": "placed"
+    }
+  ]
 }
