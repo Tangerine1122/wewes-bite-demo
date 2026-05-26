@@ -64,9 +64,9 @@ export default function Orders() {
                   <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
                     {o.customer?.name || "Unknown"} • {o.customer?.address || "No address"}
                   </p>
-                  {o.customer?.note ? (
+                  {(o.customer?.note || o.customer?.notes) ? (
                     <p className="mt-1 text-xs text-[rgb(var(--bite-muted))]">
-                      Note: {o.customer.note}
+                      Note: {o.customer.note || o.customer.notes}
                     </p>
                   ) : null}
                 </div>

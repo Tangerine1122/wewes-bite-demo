@@ -36,6 +36,7 @@ export default function Checkout() {
           id: i.id,
           name: i.name,
           price: i.price,
+          image: i.image,
           qty: i.qty,
         })),
         total,
@@ -48,7 +49,9 @@ export default function Checkout() {
       clearCart(); // ✅ clear after successful post
       navigate(`/success/${res.data.id}`); // json-server returns created object with id
     } catch {
-      setError("Failed to place order. Is JSON Server running on http://localhost:5000 ?");
+      setError(
+        `Failed to place order. Is the API running at ${api.defaults.baseURL}?`
+      );
     } finally {
       setLoading(false);
     }

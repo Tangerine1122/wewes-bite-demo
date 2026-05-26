@@ -1,15 +1,16 @@
 {
   "name": "wewes-bite-demo",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
+  "description": "Wewe's Bite food ordering demo — React + JSON Server",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm --prefix backend start",
+    "dev:web": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "json-server": "^1.0.0-beta.5"
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

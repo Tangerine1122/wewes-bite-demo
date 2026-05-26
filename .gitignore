@@ -11,3 +11,8 @@ frontend/dist/
 
 # OS
 .DS_Store
+
+# Env (keep .env.example tracked)
+frontend/.env
+.env
+.env.local
