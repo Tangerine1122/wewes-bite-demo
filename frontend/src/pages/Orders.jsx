@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../services/api";
-import TopBar from "../components/TopBar.jsx";
+import Layout from "../components/Layout.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import { formatPrice, shortOrderId } from "../utils/format.js";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -27,75 +30,122 @@ export default function Orders() {
   }, []);
 
   return (
-    <div className="min-h-screen">
-      <TopBar />
-
-      <div className="container-page">
-        <header className="mt-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-            Orders <span className="text-[rgb(var(--bite-orange))]">📦</span>
-          </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
-            Demo order history from JSON Server
-          </p>
-        </header>
+    <Layout>
+      <div className="container-page py-10">
+        <PageHeader
+          badge="Order history"
+          title="Your orders"
+          subtitle="Track past deliveries from Wewe's Bite"
+        />
 
         {loading && (
-          <p className="mt-6 text-[rgb(var(--bite-muted))]">Loading orders…</p>
+          <div className="mt-8 space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="card h-32 animate-pulse bg-stone-100/50" />
+            ))}
+          </div>
         )}
+
         {error && (
-          <p className="mt-6 font-semibold text-[rgb(var(--bite-red))]">{error}</p>
+          <div className="empty-state">
+            <div className="empty-icon">⚠️</div>
+            <p className="mt-4 font-semibold text-red-600">{error}</p>
+          </div>
         )}
 
-        <div className="mt-6 grid gap-4">
-          {!loading && !error && orders.length === 0 && (
-            <div className="card card-pad">
-              <p className="text-[rgb(var(--bite-muted))]">No orders yet.</p>
-            </div>
-          )}
+        {!loading && !error && orders.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-icon">📦</div>
+            <p className="mt-4 text-lg font-bold">No orders yet</p>
+            <p className="mt-2 text-sm text-[rgb(var(--bite-muted))]">
+              Place your first order from the menu.
+            </p>
+            <Link to="/" className="btn-primary mt-6 inline-flex">
+              Start ordering
+            </Link>
+          </div>
+        )}
 
-          {orders.map((o) => (
-            <div key={o.id} className="card card-pad">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-extrabold">
-                    Order <span className="text-[rgb(var(--bite-orange))]">#{o.id}</span>
-                  </p>
-                  <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
-                    {o.customer?.name || "Unknown"} • {o.customer?.address || "No address"}
-                  </p>
-                  {(o.customer?.note || o.customer?.notes) ? (
-                    <p className="mt-1 text-xs text-[rgb(var(--bite-muted))]">
-                      Note: {o.customer.note || o.customer.notes}
-                    </p>
-                  ) : null}
-                </div>
+        <div className="mt-8 grid gap-4">
+          {orders.map((o) => {
+            const note = o.customer?.note || o.customer?.notes;
+            const firstImage = o.items?.find((it) => it.image)?.image;
 
-                <span className="pill">₱{o.total}</span>
-              </div>
-
-              {Array.isArray(o.items) && o.items.length > 0 && (
-                <div className="mt-4 border-t border-black/5 pt-3 space-y-1">
-                  {o.items.map((it, idx) => (
-                    <div key={idx} className="flex justify-between text-sm">
-                      <span className="text-[rgb(var(--bite-muted))]">
-                        {it.name} × {it.qty || 1}
-                      </span>
-                      <span className="font-semibold">
-                        ₱{Number(it.price || 0) * Number(it.qty || 1)}
-                      </span>
+            return (
+              <article key={o.id} className="card card-pad overflow-hidden">
+                <div className="flex gap-4">
+                  {firstImage ? (
+                    <img
+                      src={firstImage}
+                      alt=""
+                      className="hidden sm:block h-24 w-24 shrink-0 rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div className="hidden sm:flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-3xl">
+                      🍽️
                     </div>
-                  ))}
-                </div>
-              )}
+                  )}
 
-              <p className="mt-3 text-xs text-[rgb(var(--bite-muted))]">
-                {o.createdAt ? new Date(o.createdAt).toLocaleString() : ""}
-              </p>
-            </div>
-          ))}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="font-extrabold text-stone-900">
+                          Order #{shortOrderId(o.id)}
+                        </p>
+                        <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
+                          {o.customer?.name || "Guest"}
+                          {o.customer?.address ? ` · ${o.customer.address}` : ""}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="status-pill">{o.status || "placed"}</span>
+                        <p className="mt-2 text-lg font-extrabold">
+                          {formatPrice(o.total)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {note && (
+                      <p className="mt-2 text-xs text-[rgb(var(--bite-muted))]">
+                        Note: {note}
+                      </p>
+                    )}
+
+                    {Array.isArray(o.items) && o.items.length > 0 && (
+                      <ul className="mt-4 space-y-1 border-t border-stone-100 pt-3">
+                        {o.items.map((it, idx) => (
+                          <li
+                            key={idx}
+                            className="flex justify-between text-sm text-[rgb(var(--bite-muted))]"
+                          >
+                            <span>
+                              {it.name} × {it.qty || 1}
+                            </span>
+                            <span className="font-semibold text-stone-800">
+                              {formatPrice(
+                                Number(it.price || 0) * Number(it.qty || 1)
+                              )}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <p className="mt-3 text-xs text-stone-400">
+                      {o.createdAt
+                        ? new Date(o.createdAt).toLocaleString("en-PH", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

@@ -2,14 +2,20 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useCart } from "../context/CartContext.jsx";
-import TopBar from "../components/TopBar.jsx";
+import Layout from "../components/Layout.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import CheckoutSteps from "../components/CheckoutSteps.jsx";
+import OrderSummaryPanel, { getOrderTotals } from "../components/OrderSummaryPanel.jsx";
+import { formatPrice } from "../utils/format.js";
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { cart, total, clearCart } = useCart();
+  const { grandTotal } = getOrderTotals(total);
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,7 +37,12 @@ export default function Checkout() {
       setLoading(true);
 
       const orderPayload = {
-        customer: { name: name.trim(), address: address.trim(), note: note.trim() },
+        customer: {
+          name: name.trim(),
+          address: address.trim(),
+          phone: phone.trim(),
+          note: note.trim(),
+        },
         items: cart.map((i) => ({
           id: i.id,
           name: i.name,
@@ -39,15 +50,15 @@ export default function Checkout() {
           image: i.image,
           qty: i.qty,
         })),
-        total,
+        total: grandTotal,
+        subtotal: total,
         createdAt: new Date().toISOString(),
         status: "placed",
       };
 
       const res = await api.post("/orders", orderPayload);
-
-      clearCart(); // ✅ clear after successful post
-      navigate(`/success/${res.data.id}`); // json-server returns created object with id
+      clearCart();
+      navigate(`/success/${res.data.id}`);
     } catch {
       setError(
         `Failed to place order. Is the API running at ${api.defaults.baseURL}?`
@@ -58,111 +69,130 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen">
-      <TopBar />
+    <Layout>
+      <div className="container-page py-10">
+        <CheckoutSteps current={2} />
 
-      <div className="container-page">
-        <header className="mt-2 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-              Checkout <span className="text-[rgb(var(--bite-orange))]">🧾</span>
-            </h1>
-            <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
-              Enter delivery details (demo)
-            </p>
-          </div>
-
-          <Link to="/cart" className="btn-ghost">
-            ← Back
-          </Link>
-        </header>
+        <PageHeader
+          badge="Almost there"
+          title="Checkout"
+          subtitle="Where should we deliver your order?"
+          action={
+            <Link to="/cart" className="btn-ghost">
+              ← Back to cart
+            </Link>
+          }
+        />
 
         {cart.length === 0 ? (
-          <div className="card card-pad mt-6">
-            <p className="text-[rgb(var(--bite-muted))]">Your cart is empty.</p>
-            <Link to="/" className="btn-primary mt-4 w-fit">
-              Browse Menu
+          <div className="empty-state">
+            <div className="empty-icon">🛒</div>
+            <p className="mt-4 font-bold">Nothing to checkout</p>
+            <Link to="/" className="btn-primary mt-4 inline-flex">
+              Browse menu
             </Link>
           </div>
         ) : (
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
-            {/* Form */}
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
             <form onSubmit={placeOrder} className="card card-pad lg:col-span-2">
-              <h3 className="text-lg font-extrabold">Delivery Details</h3>
+              <h3 className="text-lg font-extrabold">Delivery details</h3>
+              <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
+                Cash on delivery · Demo only
+              </p>
 
-              <div className="mt-4 grid gap-3">
-                <div>
-                  <label className="text-sm font-bold">Name</label>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <label className="text-sm font-bold" htmlFor="checkout-name">
+                    Full name
+                  </label>
                   <input
-                    className="input mt-1"
+                    id="checkout-name"
+                    className="input mt-1.5"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
+                    placeholder="Juan Dela Cruz"
+                    autoComplete="name"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-bold">Address</label>
+                  <label className="text-sm font-bold" htmlFor="checkout-phone">
+                    Phone
+                  </label>
                   <input
-                    className="input mt-1"
+                    id="checkout-phone"
+                    type="tel"
+                    className="input mt-1.5"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="09XX XXX XXXX"
+                    autoComplete="tel"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="text-sm font-bold" htmlFor="checkout-address">
+                    Delivery address
+                  </label>
+                  <input
+                    id="checkout-address"
+                    className="input mt-1.5"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Delivery address"
+                    placeholder="Street, barangay, city"
+                    autoComplete="street-address"
                   />
                 </div>
 
-                <div>
-                  <label className="text-sm font-bold">Note (optional)</label>
-                  <input
-                    className="input mt-1"
+                <div className="sm:col-span-2">
+                  <label className="text-sm font-bold" htmlFor="checkout-note">
+                    Special instructions <span className="font-normal text-stone-400">(optional)</span>
+                  </label>
+                  <textarea
+                    id="checkout-note"
+                    className="input mt-1.5 min-h-[88px] resize-y"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder="e.g. no onions, extra sauce"
+                    placeholder="Gate code, extra sauce, no onions…"
                   />
                 </div>
+              </div>
 
-                {error && (
-                  <p className="font-semibold text-[rgb(var(--bite-red))]">{error}</p>
-                )}
-
-                <button className="btn-primary w-full" disabled={loading}>
-                  {loading ? "Placing Order…" : "Place Order"}
-                </button>
-
-                <p className="text-xs text-[rgb(var(--bite-muted))]">
-                  This is a demo. No real payment is processed.
+              <div className="mt-6 rounded-xl border border-stone-200 bg-stone-50/80 p-4 text-sm">
+                <p className="font-bold text-stone-800">Payment method</p>
+                <p className="mt-1 text-[rgb(var(--bite-muted))]">
+                  Cash on delivery (COD) — pay when your order arrives.
                 </p>
               </div>
+
+              {error && (
+                <p className="mt-4 font-semibold text-red-600" role="alert">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="btn-primary mt-6 w-full !py-3 text-base"
+                disabled={loading}
+              >
+                {loading ? "Placing order…" : `Place order · ${formatPrice(grandTotal)}`}
+              </button>
+
+              <p className="mt-3 text-center text-xs text-[rgb(var(--bite-muted))]">
+                By placing this order you agree this is a portfolio demo.
+              </p>
             </form>
 
-            {/* Summary */}
-            <div className="card card-pad h-fit">
-              <h3 className="text-lg font-extrabold">Order Summary</h3>
-
-              <div className="mt-4 space-y-2">
-                {cart.map((item) => (
-                  <div key={item.id} className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-bold">{item.name}</p>
-                      <p className="text-xs text-[rgb(var(--bite-muted))]">
-                        ₱{item.price} × {item.qty}
-                      </p>
-                    </div>
-                    <p className="font-extrabold">
-                      ₱{Number(item.price || 0) * Number(item.qty || 1)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 border-t border-black/5 pt-4 flex items-center justify-between">
-                <span className="text-[rgb(var(--bite-muted))]">Total</span>
-                <span className="text-xl font-extrabold">₱{total}</span>
-              </div>
-            </div>
+            <OrderSummaryPanel
+              cart={cart}
+              total={total}
+              showCheckout={false}
+              sticky
+            />
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }

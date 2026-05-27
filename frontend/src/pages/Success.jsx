@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import TopBar from "../components/TopBar.jsx";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../services/api";
+import Layout from "../components/Layout.jsx";
+import CheckoutSteps from "../components/CheckoutSteps.jsx";
+import { formatPrice, shortOrderId } from "../utils/format.js";
 
 export default function Success() {
   const { orderId } = useParams();
@@ -25,67 +27,89 @@ export default function Success() {
   const note = order?.customer?.note || order?.customer?.notes;
 
   return (
-    <div className="min-h-screen">
-      <TopBar />
+    <Layout>
+      <div className="container-page py-10 max-w-2xl mx-auto">
+        <CheckoutSteps current={3} />
 
-      <div className="container-page">
-        <div className="card card-pad">
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-            Order Placed! <span className="text-[rgb(var(--bite-orange))]">✅</span>
+        <div className="card card-pad text-center">
+          <div className="success-icon">✓</div>
+
+          <h1 className="mt-6 font-brand text-3xl font-bold text-stone-900">
+            Order confirmed!
           </h1>
-
           <p className="mt-3 text-[rgb(var(--bite-muted))]">
-            Thanks for ordering from <span className="font-bold">Wewe's Bite</span>.
+            Thanks for ordering from{" "}
+            <span className="font-bold text-stone-800">Wewe&apos;s Bite</span>.
+            We&apos;re preparing your food now.
           </p>
 
-          <div className="mt-4">
-            <p className="text-sm text-[rgb(var(--bite-muted))]">Your order ID:</p>
-            <p className="text-lg font-extrabold break-all">{orderId}</p>
+          <div className="mt-6 inline-flex flex-col items-center rounded-2xl bg-stone-50 px-6 py-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[rgb(var(--bite-muted))]">
+              Order number
+            </p>
+            <p className="mt-1 font-mono text-lg font-bold text-stone-900">
+              #{shortOrderId(orderId)}
+            </p>
+            <span className="status-pill mt-3">Preparing · Est. 30–45 min</span>
           </div>
 
           {loading && (
-            <p className="mt-4 text-sm text-[rgb(var(--bite-muted))]">Loading order…</p>
+            <p className="mt-6 text-sm text-[rgb(var(--bite-muted))]">Loading receipt…</p>
           )}
 
           {!loading && order && (
-            <div className="mt-6 border-t border-black/5 pt-4 space-y-3">
-              <p className="text-sm">
-                <span className="text-[rgb(var(--bite-muted))]">Deliver to: </span>
-                <span className="font-bold">{order.customer?.name}</span>
-                {" · "}
-                {order.customer?.address}
-              </p>
-              {note ? (
-                <p className="text-sm text-[rgb(var(--bite-muted))]">Note: {note}</p>
-              ) : null}
+            <div className="mt-8 text-left rounded-xl border border-stone-100 bg-white p-5 space-y-4">
+              <div>
+                <p className="text-xs font-bold uppercase text-[rgb(var(--bite-muted))]">
+                  Deliver to
+                </p>
+                <p className="mt-1 font-bold">{order.customer?.name}</p>
+                <p className="text-sm text-[rgb(var(--bite-muted))]">
+                  {order.customer?.address}
+                </p>
+                {order.customer?.phone && (
+                  <p className="text-sm text-[rgb(var(--bite-muted))]">
+                    {order.customer.phone}
+                  </p>
+                )}
+              </div>
 
-              <div className="space-y-1">
+              {note && (
+                <p className="text-sm text-[rgb(var(--bite-muted))]">
+                  <span className="font-semibold text-stone-700">Note:</span> {note}
+                </p>
+              )}
+
+              <ul className="space-y-2 border-t border-stone-100 pt-4">
                 {order.items?.map((it, idx) => (
-                  <div key={idx} className="flex justify-between text-sm">
+                  <li key={idx} className="flex justify-between text-sm">
                     <span>
                       {it.name} × {it.qty || 1}
                     </span>
                     <span className="font-semibold">
-                      ₱{Number(it.price || 0) * Number(it.qty || 1)}
+                      {formatPrice(Number(it.price || 0) * Number(it.qty || 1))}
                     </span>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
-              <p className="text-lg font-extrabold">Total: ₱{order.total}</p>
+              <p className="flex justify-between border-t border-stone-100 pt-3 text-lg font-extrabold">
+                <span>Total paid (COD)</span>
+                <span>{formatPrice(order.total)}</span>
+              </p>
             </div>
           )}
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/" className="btn-primary">
-              Back to Menu
+              Order again
             </Link>
             <Link to="/orders" className="btn-ghost">
-              View Orders
+              View all orders
             </Link>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

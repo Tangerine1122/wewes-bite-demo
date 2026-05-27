@@ -1,13 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../services/api";
 import { useCart } from "../context/CartContext.jsx";
-import TopBar from "../components/TopBar.jsx";
+import Layout from "../components/Layout.jsx";
+import Hero from "../components/Hero.jsx";
+import FoodCard from "../components/FoodCard.jsx";
+import MenuSkeleton from "../components/MenuSkeleton.jsx";
+import { categoryLabel } from "../utils/format.js";
+
+const CATEGORY_ICONS = {
+  all: "✨",
+  burgers: "🍔",
+  wings: "🍗",
+  sides: "🍟",
+  drinks: "🥤",
+  desserts: "🍰",
+};
 
 export default function Menu() {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [category, setCategory] = useState("all");
+  const [search, setSearch] = useState("");
   const { cart, addToCart, decreaseQty } = useCart();
 
   useEffect(() => {
@@ -30,140 +44,108 @@ export default function Menu() {
   }, [foods]);
 
   const filtered = useMemo(() => {
-    if (category === "all") return foods;
-    return foods.filter((f) => f.category === category);
-  }, [foods, category]);
+    let list = foods;
+    if (category !== "all") {
+      list = list.filter((f) => f.category === category);
+    }
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (f) =>
+          f.name?.toLowerCase().includes(q) ||
+          f.description?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [foods, category, search]);
 
   function getQty(id) {
     const found = cart.find((i) => String(i.id) === String(id));
     return found ? found.qty : 0;
   }
 
-  function labelFor(cat) {
-    if (cat === "all") return "All";
-    return cat.charAt(0).toUpperCase() + cat.slice(1);
-  }
-
   return (
-    <div className="min-h-screen">
-      <TopBar />
+    <Layout hero={<Hero />}>
+      <div className="container-page py-10" id="menu">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="section-eyebrow">Our menu</p>
+            <h2 className="font-brand text-2xl md:text-3xl font-bold text-stone-900">
+              What are you craving?
+            </h2>
+            <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
+              {foods.length} items · Freshly prepared to order
+            </p>
+          </div>
 
-      <div className="container-page">
-        <header className="mt-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-            Menu <span className="text-[rgb(var(--bite-orange))]">🍔</span>
-          </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
-            Pick something yummy — add to cart
-          </p>
-        </header>
+          <div className="relative w-full sm:max-w-xs">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
+              🔍
+            </span>
+            <input
+              type="search"
+              className="search-input"
+              placeholder="Search dishes…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search menu"
+            />
+          </div>
+        </div>
 
         {!loading && !error && categories.length > 1 && (
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
-                className={category === cat ? "btn-primary" : "btn-ghost"}
+                className={`chip shrink-0 ${
+                  category === cat ? "chip-active" : "chip-inactive"
+                }`}
                 onClick={() => setCategory(cat)}
               >
-                {labelFor(cat)}
+                {CATEGORY_ICONS[cat] || "•"} {categoryLabel(cat)}
               </button>
             ))}
           </div>
         )}
 
-        {loading && (
-          <p className="mt-6 text-[rgb(var(--bite-muted))]">Loading menu…</p>
-        )}
+        {loading && <MenuSkeleton />}
+
         {error && (
-          <p className="mt-6 font-semibold text-[rgb(var(--bite-red))]">
-            {error}
-          </p>
+          <div className="empty-state">
+            <div className="empty-icon">⚠️</div>
+            <p className="mt-4 font-semibold text-red-600">{error}</p>
+            <p className="mt-2 text-sm text-[rgb(var(--bite-muted))]">
+              Run <code className="rounded bg-stone-100 px-1.5 py-0.5">npm run dev</code> from the project root.
+            </p>
+          </div>
         )}
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((food) => {
-            const qty = getQty(food.id);
-
-            return (
-              <div
+        {!loading && !error && (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((food) => (
+              <FoodCard
                 key={food.id}
-                className="card overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.10)] transition"
-              >
-                {food.image ? (
-                  <img
-                    src={food.image}
-                    alt={food.name}
-                    className="h-40 w-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="h-40 w-full bg-[rgb(var(--bite-orange))/0.12] flex items-center justify-center text-4xl">
-                    🍽️
-                  </div>
-                )}
-
-                <div className="card-pad">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-lg font-bold">{food.name}</h3>
-                    <span className="pill shrink-0">₱{food.price}</span>
-                  </div>
-
-                  {food.description && (
-                    <p className="mt-2 text-sm text-[rgb(var(--bite-muted))] line-clamp-2">
-                      {food.description}
-                    </p>
-                  )}
-
-                  {qty > 0 ? (
-                    <div className="mt-4 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="btn-ghost"
-                          onClick={() => decreaseQty(food.id)}
-                          aria-label={`Decrease ${food.name}`}
-                        >
-                          −
-                        </button>
-                        <span className="min-w-8 text-center font-extrabold">
-                          {qty}
-                        </span>
-                        <button
-                          type="button"
-                          className="btn-ghost"
-                          onClick={() => addToCart(food)}
-                          aria-label={`Increase ${food.name}`}
-                        >
-                          +
-                        </button>
-                      </div>
-                      <span className="text-sm font-semibold text-[rgb(var(--bite-muted))]">
-                        In cart
-                      </span>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn-primary mt-4 w-full"
-                      onClick={() => addToCart(food)}
-                    >
-                      Add to Cart
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                food={food}
+                qty={getQty(food.id)}
+                onAdd={() => addToCart(food)}
+                onDecrease={() => decreaseQty(food.id)}
+              />
+            ))}
+          </div>
+        )}
 
         {!loading && !error && filtered.length === 0 && (
-          <p className="mt-6 text-[rgb(var(--bite-muted))]">
-            No items in this category.
-          </p>
+          <div className="empty-state">
+            <div className="empty-icon">🔎</div>
+            <p className="mt-4 font-bold text-stone-900">No dishes found</p>
+            <p className="mt-2 text-sm text-[rgb(var(--bite-muted))]">
+              Try another category or search term.
+            </p>
+          </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }

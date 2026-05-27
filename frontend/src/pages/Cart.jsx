@@ -1,112 +1,108 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
-import TopBar from "../components/TopBar.jsx";
+import Layout from "../components/Layout.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import OrderSummaryPanel from "../components/OrderSummaryPanel.jsx";
+import { formatPrice } from "../utils/format.js";
 
 export default function Cart() {
   const { cart, total, addToCart, decreaseQty, removeItem, clearCart } = useCart();
 
   return (
-    <div className="min-h-screen">
-      <TopBar />
-
-      <div className="container-page">
-        <header className="mt-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-            Your Cart <span className="text-[rgb(var(--bite-orange))]">🛒</span>
-          </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
-            Review items before checkout
-          </p>
-        </header>
+    <Layout>
+      <div className="container-page py-10">
+        <PageHeader
+          badge="Your bag"
+          title="Shopping cart"
+          subtitle="Review your items before checkout"
+          action={
+            cart.length > 0 ? (
+              <Link to="/" className="btn-ghost">
+                ← Add more
+              </Link>
+            ) : null
+          }
+        />
 
         {cart.length === 0 ? (
-          <div className="card card-pad mt-6">
-            <p className="text-[rgb(var(--bite-muted))]">Your cart is empty.</p>
-            <Link to="/" className="btn-primary mt-4 w-fit">
-              Browse Menu
+          <div className="empty-state">
+            <div className="empty-icon">🛒</div>
+            <p className="mt-4 text-lg font-bold text-stone-900">Your cart is empty</p>
+            <p className="mt-2 text-sm text-[rgb(var(--bite-muted))]">
+              Hungry? Browse our menu and add something delicious.
+            </p>
+            <Link to="/" className="btn-primary mt-6 inline-flex">
+              Browse menu
             </Link>
           </div>
         ) : (
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
-            {/* Items */}
-            <div className="lg:col-span-2 space-y-3">
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-4">
               {cart.map((item) => (
-                <div key={item.id} className="card card-pad">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+                <article key={item.id} className="cart-line">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt=""
+                      className="cart-line-img"
+                    />
+                  ) : (
+                    <div className="cart-line-img flex items-center justify-center text-2xl">
+                      🍽️
+                    </div>
+                  )}
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
                       <h3 className="text-lg font-bold">{item.name}</h3>
-                      <p className="mt-1 text-sm text-[rgb(var(--bite-muted))]">
-                        ₱{item.price} each
-                      </p>
-                    </div>
-
-                    <button
-                      className="btn-ghost"
-                      onClick={() => removeItem(item.id)}
-                      title="Remove item"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between gap-3">
-                    {/* Qty controls */}
-                    <div className="flex items-center gap-2">
-                      <button className="btn-ghost" onClick={() => decreaseQty(item.id)}>
-                        −
-                      </button>
-
-                      <span className="min-w-10 text-center font-extrabold">
-                        {item.qty}
-                      </span>
-
-                      <button className="btn-ghost" onClick={() => addToCart(item)}>
-                        +
+                      <button
+                        type="button"
+                        className="btn-ghost !p-2 !min-w-0 text-stone-400 hover:text-red-500"
+                        onClick={() => removeItem(item.id)}
+                        aria-label={`Remove ${item.name}`}
+                      >
+                        ✕
                       </button>
                     </div>
+                    <p className="mt-0.5 text-sm text-[rgb(var(--bite-muted))]">
+                      {formatPrice(item.price)} each
+                    </p>
 
-                    <div className="text-right">
-                      <p className="text-sm text-[rgb(var(--bite-muted))]">Subtotal</p>
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <div className="qty-stepper">
+                        <button
+                          type="button"
+                          className="qty-btn"
+                          onClick={() => decreaseQty(item.id)}
+                        >
+                          −
+                        </button>
+                        <span className="qty-value">{item.qty}</span>
+                        <button
+                          type="button"
+                          className="qty-btn"
+                          onClick={() => addToCart(item)}
+                        >
+                          +
+                        </button>
+                      </div>
                       <p className="text-lg font-extrabold">
-                        ₱{Number(item.price || 0) * Number(item.qty || 1)}
+                        {formatPrice(Number(item.price || 0) * Number(item.qty || 1))}
                       </p>
                     </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
 
-            {/* Summary */}
-            <div className="card card-pad h-fit">
-              <h3 className="text-lg font-extrabold">Order Summary</h3>
-
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-[rgb(var(--bite-muted))]">Items</span>
-                <span className="font-bold">
-                  {cart.reduce((sum, i) => sum + Number(i.qty || 0), 0)}
-                </span>
-              </div>
-
-              <div className="mt-2 flex items-center justify-between">
-                <span className="text-[rgb(var(--bite-muted))]">Total</span>
-                <span className="text-xl font-extrabold">₱{total}</span>
-              </div>
-
-              <Link to="/checkout" className="btn-primary mt-5 w-full">
-                Proceed to Checkout
-              </Link>
-
-              <button className="btn-danger mt-3 w-full" onClick={clearCart}>
-                Clear Cart
-              </button>
-
-              <p className="mt-4 text-xs text-[rgb(var(--bite-muted))]">
-                Demo only — no real payment.
-              </p>
-            </div>
+            <OrderSummaryPanel
+              cart={cart}
+              total={total}
+              onClear={clearCart}
+            />
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }
